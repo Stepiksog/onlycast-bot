@@ -1,6 +1,6 @@
 const { Telegraf } = require("telegraf");
 
-const BOT_TOKEN = process.env.BOT_TOKEN;
+const BOT_TOKEN = process.env.BOT_TOKEN_NEW;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 
 if (!BOT_TOKEN) throw new Error("BOT_TOKEN is not set");
