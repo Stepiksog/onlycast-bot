@@ -13,6 +13,8 @@ bot.command("test", async (ctx) => {
 });
 
 bot.on("message", async (ctx, next) => {
+  console.log("NEW MESSAGE:", JSON.stringify(ctx.message, null, 2));
+
   const raw = ctx.message?.web_app_data?.data;
 
   if (!raw) {
@@ -20,36 +22,29 @@ bot.on("message", async (ctx, next) => {
   }
 
   try {
-    const data = JSON.parse(raw);
+    console.log("WEB_APP_DATA RAW:", raw);
 
-    const service = data.serviceTitle || "Не указано";
-    const date = data.shootDate || "Не указана";
-    const slots =
-      Array.isArray(data.selectedSlots) && data.selectedSlots.length
-        ? data.selectedSlots.join(", ")
-        : "Не выбраны";
-    const editing = data.needEditing ? "Да" : "Нет";
-    const total = data.estimate?.total ?? 0;
-    const name = data.lead?.name || "Не указано";
-    const telegram = data.lead?.telegramContact || "Не указано";
-    const comment = data.lead?.comment || "—";
+    const data = JSON.parse(raw);
 
     const text =
       `🎙 Новая заявка OnlyCast\n\n` +
-      `Услуга: ${service}\n` +
-      `Дата: ${date}\n` +
-      `Время: ${slots}\n` +
-      `Монтаж: ${editing}\n` +
-      `Итого: ${Number(total).toLocaleString("ru-RU")} ₽\n\n` +
-      `Имя: ${name}\n` +
-      `Telegram: ${telegram}\n` +
-      `Комментарий: ${comment}`;
+      `Услуга: ${data.serviceTitle || "Не указано"}\n` +
+      `Дата: ${data.shootDate || "Не указана"}\n` +
+      `Время: ${(data.selectedSlots || []).join(", ") || "Не выбрано"}\n` +
+      `Монтаж: ${data.needEditing ? "Да" : "Нет"}\n` +
+      `Итого: ${(data.estimate?.total ?? 0).toLocaleString("ru-RU")} ₽\n\n` +
+      `Имя: ${data.lead?.name || "-"}\n` +
+      `Telegram: ${data.lead?.telegramContact || "-"}\n` +
+      `Комментарий: ${data.lead?.comment || "-"}`;
 
-    await ctx.telegram.sendMessage(ADMIN_CHAT_ID, text);
-    await ctx.reply("Заявка отправлена. Мы свяжемся с Вами для подтверждения.");
+    await ctx.reply("Заявка получена ботом.");
+    console.log("TRY SEND TO GROUP:", ADMIN_CHAT_ID);
+
+    const sent = await ctx.telegram.sendMessage(ADMIN_CHAT_ID, text);
+    console.log("SENT TO GROUP OK:", sent.message_id);
   } catch (error) {
-    console.error("Failed to process web_app_data:", error);
-    await ctx.reply("Не удалось обработать заявку. Попробуйте ещё раз.");
+    console.error("FAILED TO PROCESS OR SEND:", error);
+    await ctx.reply("Ошибка при обработке заявки.");
   }
 });
 
