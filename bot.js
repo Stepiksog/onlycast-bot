@@ -1,19 +1,26 @@
-const { Telegraf } = require("telegraf");
+const { Telegraf, Markup } = require("telegraf");
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
+const MINI_APP_URL = process.env.MINI_APP_URL;
 const RAILWAY_PUBLIC_DOMAIN = process.env.RAILWAY_PUBLIC_DOMAIN;
-const PORT = Number(process.env.PORT || 3000);
+const PORT = Number(process.env.PORT || 8080);
 
 console.log("BOT_TOKEN exists:", !!BOT_TOKEN);
 console.log("ADMIN_CHAT_ID:", ADMIN_CHAT_ID);
+console.log("MINI_APP_URL:", MINI_APP_URL);
 console.log("RAILWAY_PUBLIC_DOMAIN:", RAILWAY_PUBLIC_DOMAIN);
 
 if (!BOT_TOKEN) throw new Error("BOT_TOKEN is not set");
 if (!ADMIN_CHAT_ID) throw new Error("ADMIN_CHAT_ID is not set");
+if (!MINI_APP_URL) throw new Error("MINI_APP_URL is not set");
 if (!RAILWAY_PUBLIC_DOMAIN) throw new Error("RAILWAY_PUBLIC_DOMAIN is not set");
 
 const bot = new Telegraf(BOT_TOKEN);
+
+bot.catch((err) => {
+  console.error("BOT ERROR:", err);
+});
 
 bot.use(async (ctx, next) => {
   console.log("UPDATE TYPE:", ctx.updateType);
@@ -21,16 +28,25 @@ bot.use(async (ctx, next) => {
   return next();
 });
 
-bot.catch((err) => {
-  console.error("BOT ERROR:", err);
-});
+function bookingKeyboard() {
+  return Markup.keyboard([
+    [Markup.button.webApp("Открыть запись в студию", MINI_APP_URL)],
+  ]).resize();
+}
 
-bot.command("start", async (ctx) => {
-  await ctx.reply("Бот запущен и готов принимать заявки.");
+bot.start(async (ctx) => {
+  await ctx.reply(
+    "Здравствуйте. Нажмите кнопку ниже, чтобы открыть запись в студию.",
+    bookingKeyboard(),
+  );
 });
 
 bot.command("test", async (ctx) => {
-  await ctx.reply("Бот работает.");
+  await ctx.reply("Бот работает.", bookingKeyboard());
+});
+
+bot.command("open", async (ctx) => {
+  await ctx.reply("Открываю Mini App.", bookingKeyboard());
 });
 
 bot.command("chatid", async (ctx) => {
