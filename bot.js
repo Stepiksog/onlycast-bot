@@ -15,6 +15,12 @@ if (!RAILWAY_PUBLIC_DOMAIN) throw new Error("RAILWAY_PUBLIC_DOMAIN is not set");
 
 const bot = new Telegraf(BOT_TOKEN);
 
+bot.use(async (ctx, next) => {
+  console.log("UPDATE TYPE:", ctx.updateType);
+  console.log("UPDATE RAW:", JSON.stringify(ctx.update, null, 2));
+  return next();
+});
+
 bot.catch((err) => {
   console.error("BOT ERROR:", err);
 });
