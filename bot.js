@@ -1,4 +1,4 @@
-const { Telegraf } = require("telegraf");
+const { Telegraf, Markup } = require("telegraf");
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
@@ -27,16 +27,21 @@ bot.catch((err) => {
 
 bot.start(async (ctx) => {
   await ctx.reply(
-    "Бот запущен. Открой Mini App через кнопку меню бота и отправь заявку."
+    "Бот запущен. Открой Mini App через кнопку меню бота.",
+    Markup.removeKeyboard()
   );
 });
 
 bot.command("test", async (ctx) => {
-  await ctx.reply("Бот работает.");
+  await ctx.reply("Бот работает.", Markup.removeKeyboard());
 });
 
 bot.command("chatid", async (ctx) => {
-  await ctx.reply(`chat_id: ${ctx.chat.id}`);
+  await ctx.reply(`chat_id: ${ctx.chat.id}`, Markup.removeKeyboard());
+});
+
+bot.command("hide", async (ctx) => {
+  await ctx.reply("Клавиатура скрыта.", Markup.removeKeyboard());
 });
 
 bot.on("message", async (ctx, next) => {
@@ -77,14 +82,14 @@ bot.on("message", async (ctx, next) => {
       `Telegram: ${telegram}\n` +
       `Комментарий: ${comment}`;
 
-    await ctx.reply("Заявка получена ботом.");
+    await ctx.reply("Заявка получена ботом.", Markup.removeKeyboard());
     console.log("TRY SEND TO GROUP:", ADMIN_CHAT_ID);
 
     const sent = await ctx.telegram.sendMessage(ADMIN_CHAT_ID, text);
     console.log("SENT TO GROUP OK:", sent.message_id);
   } catch (error) {
     console.error("FAILED TO PROCESS OR SEND:", error);
-    await ctx.reply("Ошибка при обработке заявки.");
+    await ctx.reply("Ошибка при обработке заявки.", Markup.removeKeyboard());
   }
 });
 
