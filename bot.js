@@ -15,7 +15,7 @@ const bot = new Telegraf(BOT_TOKEN);
 
 function bookingKeyboard() {
   return Markup.keyboard([
-   [Markup.button.webApp("Открыть запись TEST 1", MINI_APP_URL)],
+    [Markup.button.webApp("Открыть запись в студию", MINI_APP_URL)],
   ]).resize();
 }
 
@@ -31,7 +31,7 @@ bot.start(async (ctx) => {
 });
 
 bot.command("show", async (ctx) => {
-  await ctx.reply("Кнопка возвращена.", bookingKeyboard());
+  await ctx.reply("Кнопка обновлена.", bookingKeyboard());
 });
 
 bot.command("test", async (ctx) => {
@@ -52,6 +52,13 @@ bot.on("message", async (ctx, next) => {
   try {
     const data = JSON.parse(raw);
 
+    // 🔥 данные пользователя из Telegram
+    const tgFirstName = ctx.from?.first_name || "";
+    const tgLastName = ctx.from?.last_name || "";
+    const tgUsername = ctx.from?.username ? `@${ctx.from.username}` : "";
+
+    const autoName = [tgFirstName, tgLastName].filter(Boolean).join(" ");
+
     const service = data.serviceTitle || "Не указано";
     const date = data.shootDate || "Не указана";
     const slots =
@@ -60,33 +67,23 @@ bot.on("message", async (ctx, next) => {
         : "Не выбраны";
     const editing = data.needEditing ? "Да" : "Нет";
     const total = Number(data.estimate?.total ?? 0);
-    const tgFirstName = ctx.from?.first_name || "";
-const tgLastName = ctx.from?.last_name || "";
-const tgUsername = ctx.from?.username ? `@${ctx.from.username}` : "";
 
-const autoName = [tgFirstName, tgLastName].filter(Boolean).join(" ");
-
-const tgFirstName = ctx.from?.first_name || "";
-const tgLastName = ctx.from?.last_name || "";
-const tgUsername = ctx.from?.username ? `@${ctx.from.username}` : "";
-
-const autoName = [tgFirstName, tgLastName].filter(Boolean).join(" ");
-
-const name = data.lead?.name || autoName || "Не указано";
-const telegram = data.lead?.telegramContact || tgUsername || "Не указано";
+    // 🔥 автоподстановка
+    const name = data.lead?.name || autoName || "Не указано";
+    const telegram = data.lead?.telegramContact || tgUsername || "Не указано";
     const comment = data.lead?.comment || "—";
 
     const text =
-  `🎙 Новая заявка OnlyCast\n\n` +
-  `Telegram from: ${JSON.stringify(ctx.from)}\n\n` +
-  `Услуга: ${service}\n` +
-  `Дата: ${date}\n` +
-  `Время: ${slots}\n` +
-  `Монтаж: ${editing}\n` +
-  `Итого: ${total.toLocaleString("ru-RU")} ₽\n\n` +
-  `Имя: ${name}\n` +
-  `Telegram: ${telegram}\n` +
-  `Комментарий: ${comment}`;
+      `🎙 Новая заявка OnlyCast\n\n` +
+      `Telegram from: ${JSON.stringify(ctx.from)}\n\n` +
+      `Услуга: ${service}\n` +
+      `Дата: ${date}\n` +
+      `Время: ${slots}\n` +
+      `Монтаж: ${editing}\n` +
+      `Итого: ${total.toLocaleString("ru-RU")} ₽\n\n` +
+      `Имя: ${name}\n` +
+      `Telegram: ${telegram}\n` +
+      `Комментарий: ${comment}`;
 
     await ctx.reply("Заявка получена ботом.", bookingKeyboard());
     await ctx.telegram.sendMessage(ADMIN_CHAT_ID, text);
