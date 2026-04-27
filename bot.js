@@ -66,6 +66,12 @@ const tgUsername = ctx.from?.username ? `@${ctx.from.username}` : "";
 
 const autoName = [tgFirstName, tgLastName].filter(Boolean).join(" ");
 
+const tgFirstName = ctx.from?.first_name || "";
+const tgLastName = ctx.from?.last_name || "";
+const tgUsername = ctx.from?.username ? `@${ctx.from.username}` : "";
+
+const autoName = [tgFirstName, tgLastName].filter(Boolean).join(" ");
+
 const name = data.lead?.name || autoName || "Не указано";
 const telegram = data.lead?.telegramContact || tgUsername || "Не указано";
     const comment = data.lead?.comment || "—";
