@@ -15,7 +15,7 @@ const bot = new Telegraf(BOT_TOKEN);
 
 function bookingKeyboard() {
   return Markup.keyboard([
-    [Markup.button.webApp("Открыть запись в студию", MINI_APP_URL)],
+   [Markup.button.webApp("Открыть запись TEST 1", MINI_APP_URL)],
   ]).resize();
 }
 
